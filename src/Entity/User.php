@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MisterIcy\RnR\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * Class User
@@ -58,6 +59,8 @@ class User
      * @ORM\Column(type="string", length=120)
      *
      * @var string
+     *
+     * @Exclude()
      */
     private string $password;
 
