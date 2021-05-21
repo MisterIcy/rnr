@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  database:
+    build:
+      context: ./docker/database
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DATABASE_SCHEMA}
+      - MYSQL_USER=${DATABASE_USER}
+      - MYSQL_PASSWORD=${DATABASE_PASS}
+    container_name: ${APP_NAME:?err}-mariadb
+    ports:
+      - "3306:3306"
+    volumes:
+      - './docker/database/data:/var/lib/mysql'
+      - './docker/database/init:/docker-entrypoint-initdb.d'
+    networks:
+      - rnr
+
+networks:
+  rnr:
+    driver: bridge
