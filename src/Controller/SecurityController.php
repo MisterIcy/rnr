@@ -1,17 +1,31 @@
-<?php
-
+<?php declare(strict_types=1);
 
 namespace MisterIcy\RnR\Controller;
 
-
+use MisterIcy\RnR\Entity\User;
 use MisterIcy\RnR\Exceptions\MethodNotAllowedException;
 use MisterIcy\RnR\Exceptions\UnauthorizedException;
 use MisterIcy\RnR\JWT;
 use MisterIcy\RnR\Response;
 
-class SecurityController extends AbstractRestController
+/**
+ * Handles the logging in portion of the Project
+ *
+ * @package MisterIcy\RnR\Controller
+ */
+final class SecurityController extends AbstractRestController
 {
 
+    /**
+     * Handles a Request.
+     *
+     * This simply validates the User's credentials and returns a JSON Web Token
+     * which is valid for 10 minutes.
+     *
+     * @return \MisterIcy\RnR\Response
+     * @throws \MisterIcy\RnR\Exceptions\MethodNotAllowedException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     */
     public function handle(): Response
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -20,19 +34,24 @@ class SecurityController extends AbstractRestController
                 ['POST']
             );
         }
+
         $data = $this->getData();
+        /** @var User|null $user */
+        $user = $this->getEntityManager()
+            ->getRepository(User::class)
+            ->findOneBy(
+                ['email' => $data['email']]
+            );
+        if (is_null($user)) {
+            throw new UnauthorizedException("User not found");
+        }
 
-        $connection = new \PDO('mysql:host=192.168.1.66;dbname=rnr', 'icydemon', '!Soulsting1');
-        $statement = $connection->prepare('SELECT id, password FROM users WHERE email = ? LIMIT 1');
-        $statement->bindParam(1, $data['email']);
-        $statement->execute();
-
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        if (!password_verify($data['password'], $result['password'])) {
+        if (!password_verify($data['password'], $user->getPassword())) {
             throw new UnauthorizedException("Invalid password");
         }
 
-        return new Response(200, ['token' => JWT::createToken([$result['id']])]);
+        return new Response(200, ['token' => JWT::createToken(
+            ['userId' => $user->getId(), 'isAdmin' => $user->getUserType()->isAdmin()]
+        )]);
     }
 }
