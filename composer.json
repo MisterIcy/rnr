@@ -10,15 +10,18 @@
   ],
   "type": "project",
   "require": {
-    "php": ">=7.4",
+    "php": "^7.4",
     "ext-json": "*",
     "ext-pdo": "*",
     "ext-pdo_mysql": "*",
-    "doctrine/orm": "^2.8",
+    "doctrine/orm": "^2.7",
     "doctrine/dbal": "^2.12",
     "swiftmailer/swiftmailer": "^4.0",
-    "symfony/property-info": "^5.2",
-    "vlucas/phpdotenv": "^5.3"
+    "symfony/property-access": "^5.2",
+    "vlucas/phpdotenv": "^5.3",
+    "jms/serializer": "^3.12",
+    "yogarine/doctrine-annotation-autoload": "^0.3.0",
+    "doctrine/annotations": "^1.13"
   },
   "autoload": {
     "psr-4": {
