@@ -6,7 +6,7 @@ namespace MisterIcy\RnR\Exceptions;
 
 use Throwable;
 
-class NotFoundException extends HttpException
+final class NotFoundException extends HttpException
 {
     public function __construct(
         string $message,

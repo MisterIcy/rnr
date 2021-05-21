@@ -4,7 +4,7 @@
 namespace MisterIcy\RnR;
 
 
-class Response
+final class Response
 {
     public const HTTP_OK = 200;
     public const HTTP_CREATED = 201;

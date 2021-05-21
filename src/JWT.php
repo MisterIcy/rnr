@@ -6,7 +6,7 @@ namespace MisterIcy\RnR;
 
 use MisterIcy\RnR\Exceptions\UnauthorizedException;
 
-class JWT
+final class JWT
 {
     private const JWT_SECRET = 'DYuSxgRsS9vx4Nxxe7vw';
 

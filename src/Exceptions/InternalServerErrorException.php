@@ -7,7 +7,7 @@ namespace MisterIcy\RnR\Exceptions;
 use MisterIcy\RnR\Response;
 use Throwable;
 
-class InternalServerErrorException extends HttpException
+final class InternalServerErrorException extends HttpException
 {
     public function __construct(
         string $message

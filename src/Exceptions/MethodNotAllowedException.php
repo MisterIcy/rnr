@@ -6,7 +6,7 @@ namespace MisterIcy\RnR\Exceptions;
 
 use MisterIcy\RnR\Response;
 
-class MethodNotAllowedException extends HttpException
+final class MethodNotAllowedException extends HttpException
 {
     public function __construct(
         string $given,
