@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-require_once '../vendor/autoload.php';
+
 
 use MisterIcy\RnR\Application;
 use MisterIcy\RnR\Response;
@@ -14,32 +14,36 @@ use MisterIcy\RnR\Response;
  */
 function globalExceptionHandler(Throwable $ex) : void
 {
+    $code = Response::HTTP_INTERNAL_SERVER_ERROR;
+    if ($ex instanceof \MisterIcy\RnR\Exceptions\HttpException) {
+        /** @var \MisterIcy\RnR\Exceptions\HttpException $exception */
+        $exception = $ex;
+        $code = $exception->getStatusCode();
+    }
+
     $response = new Response(
-        Response::HTTP_INTERNAL_SERVER_ERROR,
+        $code,
         [
-            'code' => $ex->getCode(),
+            'code' => $code,
             'message' => sprintf(
                 "%s: %s",
                 (new ReflectionClass($ex))->getShortName(),
                 $ex->getMessage()
 
             ),
-            'data' => null,
+            'data' => $ex->getTrace(),
         ]
     );
-    header('content-type: application/json');
     http_response_code($response->getStatusCode());
+    header('content-type: application/json');
     print(json_encode($response->getData()));
     exit(1);
 }
+//set_exception_handler('globalExceptionHandler');
+//set_error_handler('globalExceptionHandler');
 
-set_exception_handler('globalExceptionHandler');
-set_error_handler('globalExceptionHandler');
-$dotenv = \Dotenv\Dotenv::createImmutable(__DIR__.'/..');
-$dotenv->load();
-
-$dotenv->required(['DATABASE_HOST', 'DATABASE_PORT', 'DATABASE_USER', 'DATABASE_PASS', 'DATABASE_SCHEMA']);
-
+require_once '../vendor/autoload.php';
+require_once '../bootstrap.php';
 
 $application = new Application();
 $response = $application->run();
@@ -50,5 +54,8 @@ foreach ($response->getHeaders() as $headerName => $value) {
 }
 
 http_response_code($response->getStatusCode());
-print(json_encode($response->getData()));
+$serializer = JMS\Serializer\SerializerBuilder::create()->build();
+$jsonContent = $serializer->serialize($response->getData(), 'json');
+
+print($jsonContent);
 exit(0);

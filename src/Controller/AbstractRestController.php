@@ -1,30 +1,96 @@
 <?php
 
+declare(strict_types=1);
 
 namespace MisterIcy\RnR\Controller;
 
-
+use Doctrine\ORM\EntityManager;
+use MisterIcy\RnR\Entity\User;
+use MisterIcy\RnR\Exceptions\InternalServerErrorException;
 use MisterIcy\RnR\Exceptions\UnauthorizedException;
 use MisterIcy\RnR\JWT;
+use MisterIcy\RnR\Persistence;
+use MisterIcy\RnR\Request;
+use MisterIcy\RnR\Security;
 
-abstract class AbstractRestController implements ControllerInterface
+/**
+ * Class AbstractRestController
+ * @package MisterIcy\RnR\Controller
+ */
+abstract class AbstractRestController
 {
-    public function getData(): ?array
+    /** @var \Doctrine\ORM\EntityManager */
+    private ?EntityManager $entityManager;
+    /**
+     * @var \MisterIcy\RnR\Persistence
+     */
+    private Persistence $persistence;
+
+    /**
+     * @return \MisterIcy\RnR\Persistence
+     */
+    public function getPersistence(): Persistence
+    {
+        return $this->persistence;
+    }
+
+    /**
+     * @return \Doctrine\ORM\EntityManager
+     */
+    public function getEntityManager(): ?EntityManager
+    {
+        return $this->entityManager;
+    }
+
+    /**
+     * @return \MisterIcy\RnR\Request
+     */
+    public function getRequest(): Request
+    {
+        return $this->request;
+    }
+
+    /**
+     * @return \MisterIcy\RnR\Security
+     */
+    public function getSecurity(): Security
+    {
+        return $this->security;
+    }
+    /**
+     * @var \MisterIcy\RnR\Request
+     */
+    private Request $request;
+    /**
+     * @var \MisterIcy\RnR\Security
+     */
+    private Security $security;
+
+    public function __construct() {
+        global $entityManager;
+        $this->entityManager = $entityManager;
+        $this->request = new Request();
+        $this->security = new Security();
+        $this->persistence = new Persistence($this->entityManager);
+    }
+
+    /**
+     * Gets JSON data from HTTP Requests
+     * @return array|null
+     */
+    protected function getData(): ?array
     {
         return json_decode(file_get_contents('php://input'), true);
     }
-    public function validateRequest() : bool {
-        $headers = getallheaders();
-        if (!array_key_exists('Authorization', $headers)) {
-            throw new UnauthorizedException('Authorization required');
-        }
-
-        $jwt  = explode(" ",$headers['Authorization'])[1];
-        return JWT::validateToken($jwt);
-    }
-    protected function getRouteParts() : array
+    /**
+     * Gets the {@see User} who requested a resource.
+     *
+     * @return \MisterIcy\RnR\Entity\User
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException Thrown in the insane scenario where a user id contained in a valid token, does not exist in database
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException Thrown if the requester hasn't supplied an Authorization header.
+     */
+    protected function getActor(): User
     {
-        return explode("/", $_SERVER['REQUEST_URI']);
+        return $this->getSecurity()->getActor();
     }
-
 }

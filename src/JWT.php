@@ -4,6 +4,8 @@
 namespace MisterIcy\RnR;
 
 
+use MisterIcy\RnR\Exceptions\UnauthorizedException;
+
 class JWT
 {
     private const JWT_SECRET = 'DYuSxgRsS9vx4Nxxe7vw';
@@ -30,33 +32,43 @@ class JWT
         return sprintf("%s.%s.%s", $b64Header, $b64Payload, $b64Signature);
     }
 
-    public static function validateToken(string $token, ?array &$payload = null) : bool {
-        $parts = explode('.', $token);
-        $header = base64_decode($parts[0]);
-        $tempPayload = base64_decode($parts[1]);
-        $signature = base64_decode($parts[2]);
-
-        $tempPayload = json_decode($tempPayload, true);
-
-        // Validate the signature
-        $tempSignature = hash_hmac('sha256', $parts[0].".".$parts[1], self::JWT_SECRET, true);
-        if ($signature !== $tempSignature) {
-            return false;
-        }
-        //(in)Sanity Check: Does the Token contain an expiration date?
-        if (!array_key_exists('exp', $tempPayload)) {
-            return false;
-        }
-        //Has the token expired?
-        if ($tempPayload['exp'] < time()) {
-            return false;
-        }
-        $payload = $tempPayload;
-        return true;
-    }
-
     private static function base64UrlEncode(string $data): string
     {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
+    }
+
+    public static function validateToken(string $token, ?array &$payload = null): bool
+    {
+        $parts = explode('.', $token);
+        $header = $parts[0];
+        $tempPayload = $parts[1];
+        $signature = $parts[2];
+
+        // Validate the signature
+
+        $tempSignature = hash_hmac('sha256', $header.".".$tempPayload, self::JWT_SECRET, true);
+
+        $tempSignature = self::base64UrlEncode($tempSignature);
+        if ($signature !== $tempSignature) {
+            throw new UnauthorizedException("Invalid token signature");
+        }
+
+        $tempPayload = json_decode(self::base64UrlDecode($tempPayload), true);
+        //(in)Sanity Check: Does the Token contain an expiration date?
+        if (!array_key_exists('exp', $tempPayload)) {
+            throw new UnauthorizedException("Invalid token");
+        }
+        //Has the token expired?
+        if ($tempPayload['exp'] < time()) {
+            throw new UnauthorizedException("Token has expired");
+        }
+        $payload = $tempPayload;
+
+        return true;
+    }
+
+    private static function base64UrlDecode(string $data): string
+    {
+        return str_replace(['-', '_', ''], ['+', '/', '='], base64_decode($data));
     }
 }

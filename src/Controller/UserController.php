@@ -1,67 +1,135 @@
 <?php
 
+declare(strict_types=1);
+
 
 namespace MisterIcy\RnR\Controller;
 
-
-use Doctrine\DBAL\ForwardCompatibility\Result;
-use MisterIcy\RnR\Exceptions\MethodNotAllowedException;
+use MisterIcy\RnR\Entity\User;
+use MisterIcy\RnR\Exceptions\ForbiddenException;
+use MisterIcy\RnR\Exceptions\InternalServerErrorException;
 use MisterIcy\RnR\Exceptions\NotFoundException;
-use MisterIcy\RnR\Exceptions\UnauthorizedException;
+use MisterIcy\RnR\Persistence;
 use MisterIcy\RnR\Response;
+use MisterIcy\RnR\RestAnnotation;
 
-class UserController extends AbstractRestController
+/**
+ * User Controller.
+ *
+ * @package MisterIcy\RnR\Controller
+ */
+final class UserController extends AbstractRestController
 {
-    private const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'PATCH'];
-    public function handle(): Response
+
+    /**
+     * Gets a user by their id.
+     *
+     * @param int $userId The id of the User we want to fetch from the database
+     * @return \MisterIcy\RnR\Response
+     * @throws \MisterIcy\RnR\Exceptions\ForbiddenException Thrown when a user tries to get data of another user
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @throws \MisterIcy\RnR\Exceptions\NotFoundException Thrown when the user was not found.
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     *
+     * @RestAnnotation(method="GET", uri="user/{userId}", protected=true)
+     * @api
+     */
+    public function getUser($userId): Response
     {
-        if (!in_array($_SERVER['REQUEST_METHOD'], self::ALLOWED_METHODS)) {
-            throw new MethodNotAllowedException($_SERVER['REQUEST_METHOD'], self::ALLOWED_METHODS);
+        $user = $this->getEntityManager()
+            ->getRepository(User::class)
+            ->find($userId);
+
+        if (empty($user)) {
+            throw new NotFoundException("There is no such user {$userId}");
         }
 
-        switch ($_SERVER['REQUEST_METHOD']) {
-            case 'GET':
-                return $this->getUser();
-            case 'POST':
-                return $this->createUser();
-            case 'PUT':
-            case 'PATCH':
-                return $this->updateUser();
+        if ($user !== $this->getActor() && !$this->getSecurity()->isAdmin()) {
+            throw new ForbiddenException();
         }
 
-    }
-    public function createUser() : Response
-    {
-
-    }
-    public function getUser() : Response
-    {
-        if (!$this->validateRequest()) {
-            throw new UnauthorizedException("Authorization Required");
-        }
-
-        $parts = $this->getRouteParts();
-        if (count($parts) < 3) {
-            throw new NotFoundException("Route not found");
-        }
-        $userId = $parts[2];
-
-        $connection = new \PDO('mysql:host=192.168.1.66;dbname=rnr', 'icydemon', '!Soulsting1');
-        $statement = $connection->prepare('SELECT id, given_name, family_name, email FROM users WHERE id = ? LIMIT 1');
-        $statement->bindParam(1, $userId);
-        $statement->execute();
-
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
-
-        if (empty($result)) {
-            throw new NotFoundException("There is no such user");
-        }
-        return new Response(200, $result);
-
-    }
-    public function updateUser() : Response
-    {
-
+        return new Response(Response::HTTP_OK, $user);
     }
 
+    /**
+     * Lists all Users
+     *
+     * @RestAnnotation(method="GET", uri="users", protected=true, admin=true)
+     *
+     * @return \MisterIcy\RnR\Response
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @api
+     */
+    public function listUsers(): Response
+    {
+        $users = $this->getEntityManager()
+            ->getRepository(User::class)
+            ->findAll();
+
+        if (empty($users)) {
+            throw new InternalServerErrorException("Your database is not populated!");
+        }
+
+        return new Response(Response::HTTP_OK, $users);
+    }
+
+    /**
+     * Creates a new User
+     *
+     * @return \MisterIcy\RnR\Response
+     * @RestAnnotation(method="POST", uri="user", protected=true, admin=true)
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @api
+     */
+    public function createUser(): Response
+    {
+        $data = $this->getData();
+
+        $data['password'] = password_hash($data['password'], PASSWORD_ARGON2ID);
+        $persistence = new Persistence($this->getEntityManager());
+
+        $user = $this->getPersistence()->persist(
+            (new User()),
+            $data
+        );
+
+        return new Response(Response::HTTP_CREATED, $user);
+    }
+
+    /**
+     * Updates an existing user
+     *
+     * @param int $userId
+     * @return \MisterIcy\RnR\Response
+     * @throws \MisterIcy\RnR\Exceptions\ForbiddenException
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @throws \MisterIcy\RnR\Exceptions\NotFoundException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     * @RestAnnotation(method="PUT", uri="user/{userId}", protected=true)
+     * @api
+     */
+    public function updateUser($userId): Response
+    {
+        $user = $this->getEntityManager()
+            ->getRepository(User::class)
+            ->find($userId);
+
+        if (empty($user)) {
+            throw new NotFoundException("There is no such user {$userId}");
+        }
+
+        if ($user !== $this->getActor() && !$this->getSecurity()->isAdmin()) {
+            throw new ForbiddenException();
+        }
+
+        $data = $this->getData();
+        if (isset($data['password'])) {
+            $data['password'] = password_hash($data['password'], PASSWORD_ARGON2ID);
+        }
+
+        $user = $this->getPersistence()
+            ->persist($user, $data);
+
+        return new Response(Response::HTTP_OK, $user);
+    }
 }

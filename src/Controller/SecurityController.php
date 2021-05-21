@@ -7,6 +7,7 @@ use MisterIcy\RnR\Exceptions\MethodNotAllowedException;
 use MisterIcy\RnR\Exceptions\UnauthorizedException;
 use MisterIcy\RnR\JWT;
 use MisterIcy\RnR\Response;
+use MisterIcy\RnR\RestAnnotation;
 
 /**
  * Handles the logging in portion of the Project
@@ -25,16 +26,11 @@ final class SecurityController extends AbstractRestController
      * @return \MisterIcy\RnR\Response
      * @throws \MisterIcy\RnR\Exceptions\MethodNotAllowedException
      * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     *
+     * @RestAnnotation(method="POST", uri="login", anonymous=true, protected=false, admin=false)
      */
     public function handle(): Response
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            throw new MethodNotAllowedException(
-                $_SERVER['REQUEST_METHOD'],
-                ['POST']
-            );
-        }
-
         $data = $this->getData();
         /** @var User|null $user */
         $user = $this->getEntityManager()

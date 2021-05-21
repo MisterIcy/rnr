@@ -10,16 +10,17 @@ class Response
     public const HTTP_CREATED = 201;
 
     public const HTTP_UNAUTHORIZED = 401;
+    public const HTTP_FORBIDDEN = 403;
     public const HTTP_METHOD_NOT_ALLOWED = 405;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
 
     private int $statusCode;
-    private ?array $data = null;
+    private $data = null;
     private array $headers = [];
 
     public function __construct(
         int $statusCode = self::HTTP_OK,
-        ?array $data = null,
+        $data = null,
         array $headers = []
     ) {
         $this->statusCode = $statusCode;
@@ -47,18 +48,18 @@ class Response
     }
 
     /**
-     * @return array|null
+     * @return mixed
      */
-    public function getData(): ?array
+    public function getData()
     {
         return $this->data;
     }
 
     /**
-     * @param array|null $data
+     * @param mixed $data
      * @return Response
      */
-    public function setData(?array $data): Response
+    public function setData($data): Response
     {
         $this->data = $data;
 
