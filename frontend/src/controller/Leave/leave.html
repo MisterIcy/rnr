@@ -25,7 +25,6 @@
         </div>
 
     </form>
-    <pre>{{leaveCtrl.leave}}</pre>
     <button class="ui green icon button"
             ng-click="leaveCtrl.submitLeave()"
             ng-class="{'disabled': leaveCtrl.leave.startDate === undefined || leaveCtrl.leave.endDate === undefined || leaveCtrl.leave.reason === undefined}">
