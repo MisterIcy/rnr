@@ -10,6 +10,11 @@ export class Dashboard {
     this.isLoading = true;
     this.q = $q;
     this.loc = $location;
+    if (this.auth.isAdmin()) {
+      $location.path(`/admin`);
+      return;
+    }
+    
     
     this.leaves = [];
     let promises = [

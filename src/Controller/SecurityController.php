@@ -3,7 +3,6 @@
 namespace MisterIcy\RnR\Controller;
 
 use MisterIcy\RnR\Entity\User;
-use MisterIcy\RnR\Exceptions\MethodNotAllowedException;
 use MisterIcy\RnR\Exceptions\UnauthorizedException;
 use MisterIcy\RnR\JWT;
 use MisterIcy\RnR\Response;
@@ -18,7 +17,7 @@ final class SecurityController extends AbstractRestController
 {
 
     /**
-     * Handles a Request.
+     * Logs in a user
      *
      * This simply validates the User's credentials and returns a JSON Web Token
      * which is valid for 10 minutes.
@@ -29,7 +28,7 @@ final class SecurityController extends AbstractRestController
      *
      * @RestAnnotation(method="POST", uri="login", anonymous=true, protected=false, admin=false)
      */
-    public function handle(): Response
+    public function login(): Response
     {
         $data = $this->getData();
         /** @var User|null $user */

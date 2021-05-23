@@ -4,6 +4,7 @@
 namespace MisterIcy\RnR\Controller;
 
 
+use DateTime;
 use MisterIcy\RnR\Entity\Leave;
 use MisterIcy\RnR\Entity\Status;
 use MisterIcy\RnR\Exceptions\ForbiddenException;
@@ -20,6 +21,7 @@ final class LeaveController extends AbstractRestController
      * Request a new leave
      *
      * @RestAnnotation(method="POST", uri="leave", protected=true, admin=false)
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException|\MisterIcy\RnR\Exceptions\UnauthorizedException
      */
     public function submitLeave(): Response
     {
@@ -33,39 +35,46 @@ final class LeaveController extends AbstractRestController
         $requester = strval($leave->getRequester());
         $vacationStart = $leave->getStartDate()->format('d/m/Y');
         $vacationEnd = $leave->getEndDate()->format('d/m/Y');
-        $approveLink = sprintf(
-            "http://%s:%d/build/#!/approve/%d",
-            $_SERVER['SERVER_NAME'],
-            $_SERVER['SERVER_PORT'],
-            $leave->getId()
-        );
-        $rejectLink = sprintf(
-            "http://%s:%d/build/#!/reject/%d",
-            $_SERVER['SERVER_ADDR'],
-            $_SERVER['SERVER_PORT'],
-            $leave->getId()
-        );
+
+        $approveLink = $this->generateLink('approve', $leave->getId());
+        $rejectLink = $this->generateLink('reject', $leave->getId());
 
 
         // Send email
 
         $message = <<<MSG
 Dear supervisor, <br/>
- employee {$requester} requested for some time off, starting on {$vacationStart} and ending on {$vacationEnd}, stating the reason:<br />
+ employee $requester requested for some time off, starting on $vacationStart and ending on $vacationEnd, stating the reason:<br />
 {$leave->getReason()}<br/><br/>
 Click on one of the below links to approve or reject the application:<br/>
-<a href="{$approveLink}">Approve</a> - <a href="{$rejectLink}">Reject</a>
+<a href="$approveLink">Approve</a> - <a href="$rejectLink">Reject</a>
 MSG;
 
         $mailer = new Mailer();
-        $result = $mailer->createMessage(
-            ['icyd3mon@gmail.com' => 'Alexandros Koutroulis'],
+        $mailer->createMessage(
+            [$_ENV['MAIL_FROM'] => $_ENV['MAIL_FROM_NAME']],
             'New Leave Request',
             $message
         );
 
-
         return new Response(Response::HTTP_CREATED, $leave);
+    }
+
+    /**
+     * Helper to generate approve/reject link
+     * @param string $action
+     * @param int $id
+     * @return string
+     */
+    private function generateLink(string $action, int $id): string
+    {
+        return sprintf(
+            "http://%s:%d/build/#!/%s/%d",
+            $_ENV['WEBSERVER_NAME'],
+            $_ENV['WEBSERVER_PORT'],
+            $action,
+            $id
+        );
     }
 
     /**
@@ -75,6 +84,11 @@ MSG;
      *
      * @param int $leaveId
      * @return Response
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @throws \MisterIcy\RnR\Exceptions\NotFoundException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
      */
     public function approveLeave($leaveId): Response
     {
@@ -101,23 +115,49 @@ MSG;
 
         $leave->setApprover($this->getActor())
             ->setStatus($status)
-            ->setModifiedDate(new \DateTime());
+            ->setModifiedDate(new DateTime());
 
-        /** Send Email */
 
         $this->getEntityManager()->persist($leave);
         $this->getEntityManager()->flush();
+
+        $this->notifyUser($leave);
 
         return new Response(Response::HTTP_OK, $leave);
     }
 
     /**
-     * Refuse a leave
+     * Sends a notification email to the user
+     * @param \MisterIcy\RnR\Entity\Leave $leave
+     * @return int
+     */
+    private function notifyUser(Leave $leave): int
+    {
+        $message = <<<MSG
+Dear employee, your supervisor has {$leave->getStatus()->getName()} your application
+submitted on {$leave->getCreatedDate()->format('d/m/Y')}.
+MSG;
+        $mailer = new Mailer();
+
+        return $mailer->createMessage(
+            [$leave->getRequester()->getEmail() => strval($leave->getRequester())],
+            "Leave Request {$leave->getStatus()->getName()}",
+            $message
+        );
+    }
+
+    /**
+     * Reject a leave
      *
      * @RestAnnotation(method="DELETE", uri="leave/{leaveId}", protected=true, admin=true)
      *
      * @param int $leaveId
      * @return Response
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @throws \MisterIcy\RnR\Exceptions\NotFoundException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
      */
     public function refuseLeave($leaveId): Response
     {
@@ -143,23 +183,27 @@ MSG;
 
         $leave->setApprover($this->getActor())
             ->setStatus($status)
-            ->setModifiedDate(new \DateTime());
-
-        /** Send Email */
+            ->setModifiedDate(new DateTime());
 
         $this->getEntityManager()->persist($leave);
         $this->getEntityManager()->flush();
+
+        $this->notifyUser($leave);
 
         return new Response(Response::HTTP_OK, $leave);
     }
 
     /**
-     * List leaves of a user.
+     * Lists leaves of a user.
      *
      * @RestAnnotation(method="GET", uri="leaves/{userId}", protected=false, admin=false, anonymous=true)
      *
      * @param int $userId
      * @return Response
+     * @throws \MisterIcy\RnR\Exceptions\ForbiddenException
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
+     * @throws \MisterIcy\RnR\Exceptions\NotFoundException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
      */
     public function listLeaves($userId): Response
     {
@@ -193,12 +237,5 @@ MSG;
         }
 
         return new Response(Response::HTTP_OK, $leaves);
-    }
-
-    private function getMailTransport(): \Swift_SmtpTransport
-    {
-        global $transport;
-
-        return $transport;
     }
 }

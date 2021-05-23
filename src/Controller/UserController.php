@@ -9,7 +9,6 @@ use MisterIcy\RnR\Entity\User;
 use MisterIcy\RnR\Exceptions\ForbiddenException;
 use MisterIcy\RnR\Exceptions\InternalServerErrorException;
 use MisterIcy\RnR\Exceptions\NotFoundException;
-use MisterIcy\RnR\Persistence;
 use MisterIcy\RnR\Response;
 use MisterIcy\RnR\RestAnnotation;
 

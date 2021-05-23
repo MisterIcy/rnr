@@ -14,6 +14,11 @@ use ReflectionException;
 use ReflectionParameter;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
+/**
+ * Agnostic storing of data inside objects, before persisting them into the database.
+ *
+ * @package MisterIcy\RnR
+ */
 final class Persistence
 {
     private const DATE_FORMATS = [
@@ -22,7 +27,6 @@ final class Persistence
         'Y-m-d\TH:i:s',
         'Y-m-d',
     ];
-
 
     /**
      * @var \Doctrine\ORM\EntityManager

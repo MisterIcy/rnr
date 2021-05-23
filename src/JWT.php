@@ -9,8 +9,9 @@ use MisterIcy\RnR\Exceptions\UnauthorizedException;
 final class JWT
 {
     /**
-     * @param array<mixed> $payload
-     * @return string
+     * Creates a JSON Web Token
+     * @param array<mixed> $payload The payload to be included into the token
+     * @return string The Token
      */
     public static function createToken(array $payload): string
     {
@@ -35,6 +36,7 @@ final class JWT
     }
 
     /**
+     * Helper for encoding
      * @param string $data
      * @return string
      */
@@ -44,9 +46,10 @@ final class JWT
     }
 
     /**
-     * @param string $token
-     * @param array<mixed>|null $payload
-     * @return bool
+     * Validates a Json Web Token
+     * @param string $token The Token
+     * @param array<mixed>|null $payload By reference parameter that exposes the payload of the token to the caller
+     * @return bool true if the token is valid, otherwise an exception will be thrown
      * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
      */
     public static function validateToken(string $token, ?array &$payload = null): bool
@@ -80,6 +83,7 @@ final class JWT
     }
 
     /**
+     * Helper for decoding
      * @param string $data
      * @return string
      */

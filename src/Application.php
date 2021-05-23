@@ -1,20 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace MisterIcy\RnR;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use MisterIcy\RnR\Controller\ControllerInterface;
-use MisterIcy\RnR\Controller\SecurityController;
-use MisterIcy\RnR\Controller\TestController;
-use MisterIcy\RnR\Controller\UserController;
-use MisterIcy\RnR\Controller\VersionController;
+use Error;
 use MisterIcy\RnR\Exceptions\ForbiddenException;
 use MisterIcy\RnR\Exceptions\NotFoundException;
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
-
-use function Composer\Autoload\includeFile;
+use ReflectionClass;
 
 /**
  * Class Application
@@ -23,18 +17,14 @@ use function Composer\Autoload\includeFile;
 final class Application
 {
     /**
-     * Application constructor.
-     * @throws \MisterIcy\RnR\Exceptions\NotFoundException
-     */
-    public function __construct()
-    {
-    }
-
-    /**
      * Extreme ways to save extreme times.
      *
      * @return \MisterIcy\RnR\Response
+     * @throws \MisterIcy\RnR\Exceptions\ForbiddenException
+     * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
      * @throws \MisterIcy\RnR\Exceptions\NotFoundException
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     * @throws \ReflectionException
      */
     public function run(): Response
     {
@@ -42,7 +32,7 @@ final class Application
         $request = new Request();
 
         // Load all Controllers
-        foreach (glob(__DIR__ . '/Controller/*.php') as $controller) {
+        foreach (glob(__DIR__.'/Controller/*.php') as $controller) {
             require_once($controller);
         }
         AnnotationRegistry::registerLoader('class_exists');
@@ -56,8 +46,8 @@ final class Application
 
             try {
                 //Create a reflector to get methods and annotations
-                $reflector = new \ReflectionClass(new $class);
-            } catch (\Error $error) {
+                $reflector = new ReflectionClass(new $class);
+            } catch (Error $error) {
                 //You cannot instantiate Abstract Classes!
                 continue;
             }
@@ -66,7 +56,7 @@ final class Application
                 $reader = new AnnotationReader();
                 /** @var \MisterIcy\RnR\RestAnnotation|null $restAnnotation */
                 $restAnnotation = $reader->
-                    getMethodAnnotation($method, RestAnnotation::class);
+                getMethodAnnotation($method, RestAnnotation::class);
 
                 //If the method is not annotated, skip it.
                 if (is_null($restAnnotation)) {
@@ -87,7 +77,7 @@ final class Application
                 $security = new Security();
 
                 if ($restAnnotation->protected && !$security->validateLogin()) {
-                        throw new ForbiddenException();
+                    throw new ForbiddenException();
                 }
                 if ($restAnnotation->admin && !$security->isAdmin()) {
                     throw new ForbiddenException();

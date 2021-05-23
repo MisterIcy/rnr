@@ -21,10 +21,12 @@ final class Mailer
     }
 
     /**
-     * @param array<string, string> $to
-     * @param string $subject
-     * @param string $content
-     * @return int
+     * Creates and sends a message
+     *
+     * @param array<string, string> $to Array of receipients
+     * @param string $subject Message's Subject
+     * @param string $content Message's Body
+     * @return int Number of successfully delivered emails
      */
     public function createMessage(
         array $to,

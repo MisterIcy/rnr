@@ -16,7 +16,7 @@ use MisterIcy\RnR\Security;
  */
 abstract class AbstractRestController
 {
-    /** @var \Doctrine\ORM\EntityManager */
+    /** @var \Doctrine\ORM\EntityManager|null */
     private ?EntityManager $entityManager;
     /**
      * @var \MisterIcy\RnR\Persistence
@@ -66,7 +66,7 @@ abstract class AbstractRestController
 
     /**
      * Gets JSON data from HTTP Requests
-     * @return array<mixed>|null
+     * @return array|null
      */
     protected function getData(): ?array
     {
