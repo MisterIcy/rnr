@@ -8,8 +8,6 @@ use MisterIcy\RnR\Exceptions\UnauthorizedException;
 
 final class JWT
 {
-    private const JWT_SECRET = 'DYuSxgRsS9vx4Nxxe7vw';
-
     /**
      * @param array<mixed> $payload
      * @return string
@@ -29,7 +27,7 @@ final class JWT
         $b64Payload = self::base64UrlEncode($payload);
 
         //Create signature hash
-        $signature = hash_hmac('sha256', $b64Header.".".$b64Payload, self::JWT_SECRET, true);
+        $signature = hash_hmac('sha256', $b64Header.".".$b64Payload, $_ENV['APP_SECRET'], true);
 
         $b64Signature = self::base64UrlEncode($signature);
 
@@ -60,7 +58,7 @@ final class JWT
 
         // Validate the signature
 
-        $tempSignature = hash_hmac('sha256', $header.".".$tempPayload, self::JWT_SECRET, true);
+        $tempSignature = hash_hmac('sha256', $header.".".$tempPayload, $_ENV['APP_SECRET'], true);
 
         $tempSignature = self::base64UrlEncode($tempSignature);
         if ($signature !== $tempSignature) {

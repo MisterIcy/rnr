@@ -16,6 +16,9 @@ $dotenv->required([
     'SMTP_PORT',
     'SMTP_USERNAME',
     'SMTP_PASSWORD',
+    'WEBSERVER_NAME',
+    'WEBSERVER_PORT',
+    'APP_SECRET'
 ]);
 
 /// Doctrine Bootstrap
