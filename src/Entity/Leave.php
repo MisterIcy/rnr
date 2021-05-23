@@ -94,7 +94,7 @@ class Leave
     /**
      * Modification Date
      *
-     * @ORM\Column(type="datetime", name="date_updated", nullable=true)
+     * @ORM\Column(type="datetime", name="date_modified", nullable=true)
      *
      * @var \DateTime|null
      */
