@@ -1,0 +1,43 @@
+<div class="ui segment" ng-class="{'loading': userCtrl.isLoading}">
+    <h2 class="ui header">User Administration</h2>
+    <form class="ui small form">
+        <h4 class="ui dividing header">User Information</h4>
+        <div class="fields">
+            <div class="four wide field">
+                <label for="givenName">Given Name</label>
+                <input type="text" id="givenName" ng-model="userCtrl.user.givenName">
+            </div>
+            <div class="four wide field">
+                <label for="familyName">Family Name</label>
+                <input type="text" id="familyName" ng-model="userCtrl.user.familyName">
+            </div>
+            <div class="four wide field">
+                <label for="email">Email</label>
+                <input type="email" id="email" ng-model="userCtrl.user.email">
+            </div>
+            <div class="four wide field">
+                <label for="userType">User Type</label>
+                <select class="ui dropdown" id="userType"
+                        ng-options="t.id as t.name for t in userCtrl.userTypes"
+                        ng-model="userCtrl.user.userType.id">
+                    <option value="">Select...</option>
+                </select>
+            </div>
+        </div>
+        <h4 class="ui dividing header">Password Management</h4>
+        <div class="fields">
+
+            <div class="four wide field">
+                <label for="password">Password</label>
+                <input type="password" id="password" ng-model="userCtrl.user.password">
+            </div>
+            <div class="four wide field">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" ng-model="userCtrl.user.confirmPassword">
+            </div>
+        </div>
+    </form>
+    <div class="ui green icon button" ng-click="userCtrl.updateUser()">
+        <i class="edit icon"></i> {{userCtrl.user.id !== undefined ? 'Update' : 'Create'}} User
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="ui container">
+    <div class="ui segment" ng-class="{'loading': dashCtrl.isLoading}">
+        <h2 class="ui header">Dashboard</h2>
+
+        <button class="ui green icon button" ng-click="dashCtrl.submitLeave()">
+            <i class="sun outline icon"></i> Submit Request
+        </button>
+
+        <table class="ui celled compact table">
+            <thead>
+                <tr>
+                    <th>Submission Date</th>
+                    <th>Dates Requested</th>
+                    <th>Days Requested</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="leave in dashCtrl.leaves">
+                    <td>{{leave.createdDate}}</td>
+                    <td>
+                        {{leave.startDate}} &mdash;
+                        {{leave.endDate}}
+                    </td>
+                    <td>
+                        {{leave.days}}
+                    </td>
+                    <td ng-class="{
+                        'warning': leave.status.name === 'Pending',
+                        'error': leave.status.name === 'Rejected',
+                        'success': leave.status.name === 'Approved'}">
+                        {{leave.status.name}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

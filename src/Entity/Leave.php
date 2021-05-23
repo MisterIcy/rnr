@@ -3,7 +3,11 @@
 
 namespace MisterIcy\RnR\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Exclude;
+use MisterIcy\RnR\DateTimeHelper;
 
 /**
  * Class Leave
@@ -37,7 +41,9 @@ class Leave
      * Approver.
      *
      * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(name="approver", referencedColumnName="id")
+     * @ORM\JoinColumn(name="approver", referencedColumnName="id", nullable=true)
+     *
+     * @Exclude
      *
      * @var User|null
      */
@@ -57,28 +63,33 @@ class Leave
      * Start Date
      *
      * @ORM\Column(type="date", name="date_start")
+     * @Serializer\Type("DateTime<'d-m-Y'>")
      *
      * @var \DateTime
      */
-    private \DateTime $startDate;
+    private DateTime $startDate;
 
     /**
      * End Date
      *
      * @ORM\Column(type="date", name="date_end")
      *
+     * @Serializer\Type("DateTime<'d-m-Y'>")
+     *
      * @var \DateTime
      */
-    private \DateTime $endDate;
+    private DateTime $endDate;
 
     /**
      * Creation Date
      *
-     * @ORM\Column(type="datetime", name="date_created")
+     * @ORM\Column(type="datetime", name="date_created", nullable=true)
      *
-     * @var \DateTime
+     * @Serializer\Type("DateTime<'d-m-Y'>")
+     *
+     * @var \DateTime|null
      */
-    private \DateTime $createdDate;
+    private $createdDate;
 
     /**
      * Modification Date
@@ -87,7 +98,7 @@ class Leave
      *
      * @var \DateTime|null
      */
-    private ?\DateTime $modifiedDate;
+    private $modifiedDate;
 
     /**
      * Reason
@@ -97,6 +108,10 @@ class Leave
      * @var string|null
      */
     private ?string $reason;
+
+    public function __construct() {
+
+    }
 
     /**
      * @return int
@@ -166,7 +181,7 @@ class Leave
     /**
      * @return \DateTime
      */
-    public function getStartDate(): \DateTime
+    public function getStartDate(): DateTime
     {
         return $this->startDate;
     }
@@ -175,7 +190,7 @@ class Leave
      * @param \DateTime $startDate
      * @return Leave
      */
-    public function setStartDate(\DateTime $startDate): Leave
+    public function setStartDate(DateTime $startDate): Leave
     {
         $this->startDate = $startDate;
 
@@ -185,7 +200,7 @@ class Leave
     /**
      * @return \DateTime
      */
-    public function getEndDate(): \DateTime
+    public function getEndDate(): DateTime
     {
         return $this->endDate;
     }
@@ -194,7 +209,7 @@ class Leave
      * @param \DateTime $endDate
      * @return Leave
      */
-    public function setEndDate(\DateTime $endDate): Leave
+    public function setEndDate(DateTime $endDate): Leave
     {
         $this->endDate = $endDate;
 
@@ -204,7 +219,7 @@ class Leave
     /**
      * @return \DateTime
      */
-    public function getCreatedDate(): \DateTime
+    public function getCreatedDate(): DateTime
     {
         return $this->createdDate;
     }
@@ -213,7 +228,7 @@ class Leave
      * @param \DateTime $createdDate
      * @return Leave
      */
-    public function setCreatedDate(\DateTime $createdDate): Leave
+    public function setCreatedDate(DateTime $createdDate): Leave
     {
         $this->createdDate = $createdDate;
 
@@ -223,7 +238,7 @@ class Leave
     /**
      * @return \DateTime|null
      */
-    public function getModifiedDate(): ?\DateTime
+    public function getModifiedDate(): ?DateTime
     {
         return $this->modifiedDate;
     }
@@ -232,7 +247,7 @@ class Leave
      * @param \DateTime|null $modifiedDate
      * @return Leave
      */
-    public function setModifiedDate(?\DateTime $modifiedDate): Leave
+    public function setModifiedDate(?DateTime $modifiedDate): Leave
     {
         $this->modifiedDate = $modifiedDate;
 
@@ -257,5 +272,19 @@ class Leave
 
         return $this;
     }
+    /**
+     * @Serializer\VirtualProperty()
+     */
+    public function getDays() : int
+    {
+        if (!is_null($this->startDate) && !is_null($this->endDate)) {
+            return DateTimeHelper::calculateBusinessDays(clone $this->startDate, clone $this->endDate);
+        }
+        return 0;
+    }
+
+
+
+
 
 }

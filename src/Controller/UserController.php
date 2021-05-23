@@ -86,7 +86,6 @@ final class UserController extends AbstractRestController
         $data = $this->getData();
 
         $data['password'] = password_hash($data['password'], PASSWORD_ARGON2ID);
-        $persistence = new Persistence($this->getEntityManager());
 
         $user = $this->getPersistence()->persist(
             (new User()),

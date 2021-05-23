@@ -1,0 +1,23 @@
+<div class="ui segment" ng-class="{'loading': adminCtrl.isLoading}">
+    <h2 class="ui header">Administration Dashboard</h2>
+    <!-- Create User Button -->
+
+    <table class="ui compact celled table">
+        <thead>
+        <tr>
+            <th>Given Name</th>
+            <th>Family Name</th>
+            <th>Email</th>
+            <th>Type</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="user in adminCtrl.users" ng-click="adminCtrl.editUser(user.id)" style="cursor: pointer">
+                <td>{{user.givenName}}</td>
+                <td>{{user.familyName}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.userType.type}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

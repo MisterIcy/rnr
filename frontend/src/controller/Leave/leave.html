@@ -1,0 +1,34 @@
+<div class="ui segment" ng-class="{'loading': leaveCtrl.isLoading}">
+    <h2 class="ui header">Submit new leave</h2>
+    <form class="ui small form" name="leaveForm" novalidate>
+        <div class="fields">
+            <div class="four wide field">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate"
+                       ng-model="leaveCtrl.leave.startDate.date"
+                       min="{{leaveCtrl.today | date: 'yyyy-MM-dd' : 'UTC'}}"
+                       required>
+            </div>
+            <div class="four wide field">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate"
+                       ng-model="leaveCtrl.leave.endDate.date"
+                       min="{{leaveCtrl.leave.startDate.date | date: 'yyyy-MM-dd' : 'UTC'}}"
+                       required>
+            </div>
+        </div>
+        <div class="fields">
+            <div class="eight wide field">
+                <label for="reason">Reason</label>
+                <textarea id="reason" ng-model="leaveCtrl.leave.reason" required></textarea>
+            </div>
+        </div>
+
+    </form>
+    <pre>{{leaveCtrl.leave}}</pre>
+    <button class="ui green icon button"
+            ng-click="leaveCtrl.submitLeave()"
+            ng-class="{'disabled': leaveCtrl.leave.startDate === undefined || leaveCtrl.leave.endDate === undefined || leaveCtrl.leave.reason === undefined}">
+        <i class="sun outline icon"></i> Submit application
+    </button>
+</div>

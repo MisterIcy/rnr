@@ -174,4 +174,9 @@ class User
 
         return $this;
     }
+
+    public function __toString()
+    {
+        return sprintf("%s %s", $this->givenName, $this->familyName);
+    }
 }

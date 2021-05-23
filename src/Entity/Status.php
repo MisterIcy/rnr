@@ -27,12 +27,30 @@ class Status
     /**
      * Name
      *
-     * @ORM\Id
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=64, name="name")
      *
      * @var string
      */
-    private string $type;
+    private string $name;
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     * @return Status
+     */
+    public function setName(string $name): Status
+    {
+        $this->name = $name;
+
+        return $this;
+    }
 
     /**
      * @return int
@@ -42,22 +60,4 @@ class Status
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     * @return Status
-     */
-    public function setType(string $type): Status
-    {
-        $this->type = $type;
-
-        return $this;
-    }
 }

@@ -57,7 +57,7 @@ final class Persistence
             $this->entityManager->persist($object);
             $this->entityManager->flush();
         } catch (Exception $exception) {
-            throw new InternalServerErrorException($exception->getMessage());
+            throw $exception;
         }
 
         return $object;
@@ -200,6 +200,7 @@ final class Persistence
      */
     private function ISO8601ToDateTime($date)
     {
+        date_default_timezone_set('Europe/Athens');
         $dateObject = false;
         foreach (self::DATE_FORMATS as $dateFormat) {
             $dateObject = DateTime::createFromFormat($dateFormat, $date);
@@ -211,6 +212,7 @@ final class Persistence
         if ($dateObject === false) {
             throw new InternalServerErrorException("Unknown format for date $date");
         }
+        $dateObject->setTimezone(new \DateTimeZone('Europe/Athens'));
 
         return $dateObject;
     }

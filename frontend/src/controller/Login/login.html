@@ -1,0 +1,24 @@
+<div class="ui middle aligned center aligned grid" style="height: 100vh; margin:0">
+    <div class="column" style=" max-width: 450px;">
+        <h2 class="ui blue header">Login</h2>
+        <form class="ui large form">
+            <div class="ui stacked segment" style="background: transparent">
+                <div class="field" ng-class="{'disabled': loginCtrl.loggingIn}">
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        <input type="email" placeholder="Email" ng-model="loginCtrl.email"/>
+                    </div>
+                </div>
+                <div class="field" ng-class="{'disabled': loginCtrl.loggingIn}">
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input type="password" placeholder="Password" ng-model="loginCtrl.password"/>
+                    </div>
+                </div>
+                <button class="ui fluid large blue icon submit button" ng-click="loginCtrl.login()" ng-class="{'disabled loading': loginCtrl.loggingIn}">
+                    <i class="sign-in icon"></i> Login
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 
+use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use MisterIcy\RnR\Application;
 use MisterIcy\RnR\Response;
 
@@ -12,7 +14,7 @@ use MisterIcy\RnR\Response;
  * @param \Throwable $ex
  * @return void
  */
-function globalExceptionHandler(Throwable $ex) : void
+function globalExceptionHandler(Throwable $ex): void
 {
     $code = Response::HTTP_INTERNAL_SERVER_ERROR;
     if ($ex instanceof \MisterIcy\RnR\Exceptions\HttpException) {
@@ -39,8 +41,9 @@ function globalExceptionHandler(Throwable $ex) : void
     print(json_encode($response->getData()));
     exit(1);
 }
-//set_exception_handler('globalExceptionHandler');
-//set_error_handler('globalExceptionHandler');
+
+set_exception_handler('globalExceptionHandler');
+set_error_handler('globalExceptionHandler');
 
 require_once '../vendor/autoload.php';
 require_once '../bootstrap.php';
@@ -54,7 +57,11 @@ foreach ($response->getHeaders() as $headerName => $value) {
 }
 
 http_response_code($response->getStatusCode());
-$serializer = JMS\Serializer\SerializerBuilder::create()->build();
+$serializer = JMS\Serializer\SerializerBuilder::create()
+    ->setPropertyNamingStrategy(
+        new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy())
+    )
+    ->build();
 $jsonContent = $serializer->serialize($response->getData(), 'json');
 
 print($jsonContent);
