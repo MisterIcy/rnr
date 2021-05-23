@@ -12,9 +12,11 @@ import { LeaveService } from './services/LeaveService';
 
 import { LoginController } from './controller/Login/LoginController';
 import { Dashboard } from './controller/Dashboard/dashboard';
-import {LeaveController} from './controller/Leave/leave';
-import {AdminDashboard} from './controller/Admin/AdminDashboard';
-import {UserDashboard} from './controller/User/UserDashboard';
+import { LeaveController } from './controller/Leave/leave';
+import { AdminDashboard } from './controller/Admin/AdminDashboard';
+import { UserDashboard } from './controller/User/UserDashboard';
+import { ApproveController } from './controller/Approve/Approve';
+import { RejectController } from './controller/Reject/Reject';
 
 window.toastr = toastr;
 
@@ -48,17 +50,27 @@ angular.module('rnr')
       .when(`/leave`, {
         controller: LeaveController,
         controllerAs: 'leaveCtrl',
-        template: require(`./controller/Leave/leave.html`)
+        template: require(`./controller/Leave/leave.html`),
       })
       .when(`/admin`, {
         controller: AdminDashboard,
         controllerAs: 'adminCtrl',
-        template: require(`./controller/Admin/admin.html`)
+        template: require(`./controller/Admin/admin.html`),
       })
       .when(`/user/:userId?`, {
         controller: UserDashboard,
         controllerAs: 'userCtrl',
-        template: require(`./controller/User/user.html`)
+        template: require(`./controller/User/user.html`),
+      })
+      .when(`/approve/:leaveId`, {
+        controller: ApproveController,
+        controllerAs: 'approveCtrl',
+        template: require('./controller/Approve/approve.html'),
+      })
+      .when(`/reject/:leaveId`, {
+        controller: RejectController,
+        controllerAs: 'rejectCtrl',
+        template: require(`./controller/Reject/reject.html`),
       })
       .otherwise(`/`);
   }]);

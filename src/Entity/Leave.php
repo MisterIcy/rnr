@@ -277,7 +277,7 @@ class Leave
      */
     public function getDays() : int
     {
-        if (!is_null($this->startDate) && !is_null($this->endDate)) {
+        if (!empty($this->startDate) && !empty($this->endDate)) {
             return DateTimeHelper::calculateBusinessDays(clone $this->startDate, clone $this->endDate);
         }
         return 0;

@@ -9,6 +9,10 @@ use Throwable;
 
 final class InternalServerErrorException extends HttpException
 {
+    /**
+     * InternalServerErrorException constructor.
+     * @param string $message
+     */
     public function __construct(
         string $message
     ) {

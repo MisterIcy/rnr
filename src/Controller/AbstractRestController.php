@@ -6,9 +6,6 @@ namespace MisterIcy\RnR\Controller;
 
 use Doctrine\ORM\EntityManager;
 use MisterIcy\RnR\Entity\User;
-use MisterIcy\RnR\Exceptions\InternalServerErrorException;
-use MisterIcy\RnR\Exceptions\UnauthorizedException;
-use MisterIcy\RnR\JWT;
 use MisterIcy\RnR\Persistence;
 use MisterIcy\RnR\Request;
 use MisterIcy\RnR\Security;
@@ -25,6 +22,23 @@ abstract class AbstractRestController
      * @var \MisterIcy\RnR\Persistence
      */
     private Persistence $persistence;
+    /**
+     * @var \MisterIcy\RnR\Request
+     */
+    private Request $request;
+    /**
+     * @var \MisterIcy\RnR\Security
+     */
+    private Security $security;
+
+    public function __construct()
+    {
+        global $entityManager;
+        $this->entityManager = $entityManager;
+        $this->request = new Request();
+        $this->security = new Security();
+        $this->persistence = new Persistence($this->entityManager);
+    }
 
     /**
      * @return \MisterIcy\RnR\Persistence
@@ -51,37 +65,14 @@ abstract class AbstractRestController
     }
 
     /**
-     * @return \MisterIcy\RnR\Security
-     */
-    public function getSecurity(): Security
-    {
-        return $this->security;
-    }
-    /**
-     * @var \MisterIcy\RnR\Request
-     */
-    private Request $request;
-    /**
-     * @var \MisterIcy\RnR\Security
-     */
-    private Security $security;
-
-    public function __construct() {
-        global $entityManager;
-        $this->entityManager = $entityManager;
-        $this->request = new Request();
-        $this->security = new Security();
-        $this->persistence = new Persistence($this->entityManager);
-    }
-
-    /**
      * Gets JSON data from HTTP Requests
-     * @return array|null
+     * @return array<mixed>|null
      */
     protected function getData(): ?array
     {
         return json_decode(file_get_contents('php://input'), true);
     }
+
     /**
      * Gets the {@see User} who requested a resource.
      *
@@ -92,5 +83,13 @@ abstract class AbstractRestController
     protected function getActor(): User
     {
         return $this->getSecurity()->getActor();
+    }
+
+    /**
+     * @return \MisterIcy\RnR\Security
+     */
+    public function getSecurity(): Security
+    {
+        return $this->security;
     }
 }

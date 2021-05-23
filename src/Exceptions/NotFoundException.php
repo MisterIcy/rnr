@@ -4,10 +4,19 @@
 namespace MisterIcy\RnR\Exceptions;
 
 
+use MisterIcy\RnR\Response;
 use Throwable;
 
 final class NotFoundException extends HttpException
 {
+    /**
+     * NotFoundException constructor.
+     * @param string $message
+     * @param int $code
+     * @param array<string, string> $headers
+     * @param array<string, mixed>|null $data
+     * @param \Throwable|null $previous
+     */
     public function __construct(
         string $message,
         int $code = 0,
@@ -15,6 +24,6 @@ final class NotFoundException extends HttpException
         ?array $data = null,
         ?Throwable $previous = null
     ) {
-        parent::__construct(404, $message, $code, $headers, $data, $previous);
+        parent::__construct(Response::HTTP_NOT_FOUND, $message, $code, $headers, $data, $previous);
     }
 }

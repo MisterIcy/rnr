@@ -7,6 +7,10 @@ use Throwable;
 
 final class ForbiddenException extends HttpException
 {
+    /**
+     * ForbiddenException constructor.
+     * @param string $message
+     */
     public function __construct(
         string $message = 'Access to this resource is forbidden'
     ) {

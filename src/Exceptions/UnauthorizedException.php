@@ -8,6 +8,10 @@ use MisterIcy\RnR\Response;
 
 final class UnauthorizedException extends HttpException
 {
+    /**
+     * UnauthorizedException constructor.
+     * @param string $message
+     */
     public function __construct(
         string $message
     ) {

@@ -8,6 +8,10 @@ use MisterIcy\RnR\Response;
 
 final class NotImplementedException extends HttpException
 {
+    /**
+     * NotImplementedException constructor.
+     * @param string $message
+     */
     public function __construct(
         string $message = "This feature is not yet implemented"
     ) {

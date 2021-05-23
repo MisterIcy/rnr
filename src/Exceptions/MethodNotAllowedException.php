@@ -8,6 +8,11 @@ use MisterIcy\RnR\Response;
 
 final class MethodNotAllowedException extends HttpException
 {
+    /**
+     * MethodNotAllowedException constructor.
+     * @param string $given
+     * @param array<string>|null $allowed
+     */
     public function __construct(
         string $given,
         ?array $allowed

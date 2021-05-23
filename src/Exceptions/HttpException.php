@@ -17,7 +17,7 @@ abstract class HttpException extends Exception
 
     /**
      * HTTP Headers
-     * @var string[][]
+     * @var array<string, string>
      */
     private array $headers;
 
@@ -27,6 +27,15 @@ abstract class HttpException extends Exception
      */
     private ?array $data;
 
+    /**
+     * HttpException constructor.
+     * @param int $statusCode
+     * @param string $message
+     * @param int $code
+     * @param array<string, string> $headers
+     * @param array<string, mixed>|null $data
+     * @param \Throwable|null $previous
+     */
     public function __construct(
         int $statusCode,
         string $message,
@@ -50,7 +59,7 @@ abstract class HttpException extends Exception
     }
 
     /**
-     * @return \string[][]
+     * @return array<string, string>
      */
     public function getHeaders(): array
     {

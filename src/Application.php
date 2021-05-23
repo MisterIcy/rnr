@@ -33,7 +33,7 @@ final class Application
     /**
      * Extreme ways to save extreme times.
      *
-     * @return \MisterIcy\RnR\Controller\ControllerInterface
+     * @return \MisterIcy\RnR\Response
      * @throws \MisterIcy\RnR\Exceptions\NotFoundException
      */
     public function run(): Response

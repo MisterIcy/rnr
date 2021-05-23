@@ -9,12 +9,12 @@ export function run (AuthService, $http, $rootScope, $location) {
   }
   
   $rootScope.$on('$locationChangeStart', (event, next, current) => {
-    
+   
     let isLogged = AuthService.validateToken();
     if (isLogged) {
       $http.defaults.headers.common['Authorization'] = `Bearer: ${AuthService.getToken()}`;
-    } else {
-      $location.path(`/login`);
+    } else if (next.indexOf(`login`) === -1) {
+      $location.path(`/login`).search({next: next});
     }
     /**
     const restrictedPage = ($location.path() !== '/login');

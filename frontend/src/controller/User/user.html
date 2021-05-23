@@ -37,7 +37,14 @@
             </div>
         </div>
     </form>
-    <div class="ui green icon button" ng-click="userCtrl.updateUser()">
+    <div class="ui green icon button" ng-click="userCtrl.updateUser()"
+         ng-class="{'disabled': userCtrl.user.givenName === undefined ||
+         userCtrl.user.familyName === undefined ||
+         userCtrl.user.email === undefined ||
+         userCtrl.user.userType === undefined ||
+         userCtrl.user.password === undefined ||
+         userCtrl.user.confirmPassword == undefined}">
         <i class="edit icon"></i> {{userCtrl.user.id !== undefined ? 'Update' : 'Create'}} User
     </div>
+
 </div>

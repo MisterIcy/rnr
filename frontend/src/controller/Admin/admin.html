@@ -2,6 +2,10 @@
     <h2 class="ui header">Administration Dashboard</h2>
     <!-- Create User Button -->
 
+    <div class="ui green icon button" ng-click="adminCtrl.createUser()">
+        <i class="plus icon"></i> Create User
+    </div>
+
     <table class="ui compact celled table">
         <thead>
         <tr>
@@ -12,7 +16,9 @@
         </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="user in adminCtrl.users" ng-click="adminCtrl.editUser(user.id)" style="cursor: pointer">
+            <tr ng-repeat="user in adminCtrl.users"
+                ng-click="adminCtrl.editUser(user.id)"
+                style="cursor: pointer">
                 <td>{{user.givenName}}</td>
                 <td>{{user.familyName}}</td>
                 <td>{{user.email}}</td>

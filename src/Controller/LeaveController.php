@@ -7,6 +7,7 @@ namespace MisterIcy\RnR\Controller;
 use MisterIcy\RnR\Entity\Leave;
 use MisterIcy\RnR\Entity\Status;
 use MisterIcy\RnR\Exceptions\ForbiddenException;
+use MisterIcy\RnR\Exceptions\InternalServerErrorException;
 use MisterIcy\RnR\Exceptions\NotFoundException;
 use MisterIcy\RnR\Mailer;
 use MisterIcy\RnR\Response;
@@ -71,6 +72,9 @@ MSG;
      * Approve a leave.
      *
      * @RestAnnotation(method="PATCH", uri="leave/{leaveId}", protected=true, admin=true)
+     *
+     * @param int $leaveId
+     * @return Response
      */
     public function approveLeave($leaveId): Response
     {
@@ -88,6 +92,13 @@ MSG;
             throw new NotFoundException("There is no leave with id $leaveId");
         }
 
+        if (!is_null($leave->getApprover())) {
+            throw new InternalServerErrorException(
+                "The status of this leave is {$leave->getStatus()->getName()}. Contact the administrator"
+            );
+        }
+
+
         $leave->setApprover($this->getActor())
             ->setStatus($status)
             ->setModifiedDate(new \DateTime());
@@ -104,6 +115,9 @@ MSG;
      * Refuse a leave
      *
      * @RestAnnotation(method="DELETE", uri="leave/{leaveId}", protected=true, admin=true)
+     *
+     * @param int $leaveId
+     * @return Response
      */
     public function refuseLeave($leaveId): Response
     {
@@ -119,6 +133,12 @@ MSG;
 
         if (is_null($leave)) {
             throw new NotFoundException("There is no leave with id $leaveId");
+        }
+
+        if (!is_null($leave->getApprover())) {
+            throw new InternalServerErrorException(
+                "The status of this leave is {$leave->getStatus()->getName()}. Contact the administrator"
+            );
         }
 
         $leave->setApprover($this->getActor())
@@ -137,6 +157,9 @@ MSG;
      * List leaves of a user.
      *
      * @RestAnnotation(method="GET", uri="leaves/{userId}", protected=false, admin=false, anonymous=true)
+     *
+     * @param int $userId
+     * @return Response
      */
     public function listLeaves($userId): Response
     {

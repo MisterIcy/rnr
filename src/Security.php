@@ -70,11 +70,11 @@ final class Security
     /**
      * Gets the data part of the payload from the JWT.
      *
-     * @param $token
-     * @return array
+     * @param string $token
+     * @return array<mixed>
      * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
      */
-    private function getTokenData($token): array
+    private function getTokenData(string $token): array
     {
         JWT::validateToken($token, $payload);
 

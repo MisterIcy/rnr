@@ -1,6 +1,5 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
+require_once __DIR__ . '/../vendor/autoload.php';
 
 
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
@@ -45,8 +44,7 @@ function globalExceptionHandler(Throwable $ex): void
 set_exception_handler('globalExceptionHandler');
 set_error_handler('globalExceptionHandler');
 
-require_once '../vendor/autoload.php';
-require_once '../bootstrap.php';
+require_once __DIR__ . '/../bootstrap.php';
 
 $application = new Application();
 $response = $application->run();

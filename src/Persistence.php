@@ -194,11 +194,11 @@ final class Persistence
     }
 
     /**
-     * @param $date
+     * @param string $date
      * @return \DateTime|mixed
      * @throws \MisterIcy\RnR\Exceptions\InternalServerErrorException
      */
-    private function ISO8601ToDateTime($date)
+    private function ISO8601ToDateTime(string $date)
     {
         date_default_timezone_set('Europe/Athens');
         $dateObject = false;

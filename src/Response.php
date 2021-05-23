@@ -9,16 +9,33 @@ final class Response
     public const HTTP_OK = 200;
     public const HTTP_CREATED = 201;
 
+    public const HTTP_BAD_REQUEST = 400;
     public const HTTP_UNAUTHORIZED = 401;
     public const HTTP_FORBIDDEN = 403;
+    public const HTTP_NOT_FOUND = 404;
     public const HTTP_METHOD_NOT_ALLOWED = 405;
     public const HTTP_INTERNAL_SERVER_ERROR = 500;
     public const HTTP_NOT_IMPLEMENTED = 501;
 
+    /**
+     * @var int
+     */
     private int $statusCode;
+    /**
+     * @var mixed|null
+     */
     private $data = null;
+    /**
+     * @var array<string, string>
+     */
     private array $headers = [];
 
+    /**
+     * Response constructor.
+     * @param int $statusCode
+     * @param mixed|null $data
+     * @param array<string, string> $headers
+     */
     public function __construct(
         int $statusCode = self::HTTP_OK,
         $data = null,
@@ -68,7 +85,7 @@ final class Response
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
     public function getHeaders(): array
     {
@@ -76,7 +93,7 @@ final class Response
     }
 
     /**
-     * @param array $headers
+     * @param array<string, string> $headers
      * @return Response
      */
     public function setHeaders(array $headers): Response

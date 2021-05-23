@@ -10,6 +10,10 @@ final class JWT
 {
     private const JWT_SECRET = 'DYuSxgRsS9vx4Nxxe7vw';
 
+    /**
+     * @param array<mixed> $payload
+     * @return string
+     */
     public static function createToken(array $payload): string
     {
         // Create and encode the header
@@ -32,11 +36,21 @@ final class JWT
         return sprintf("%s.%s.%s", $b64Header, $b64Payload, $b64Signature);
     }
 
+    /**
+     * @param string $data
+     * @return string
+     */
     private static function base64UrlEncode(string $data): string
     {
         return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($data));
     }
 
+    /**
+     * @param string $token
+     * @param array<mixed>|null $payload
+     * @return bool
+     * @throws \MisterIcy\RnR\Exceptions\UnauthorizedException
+     */
     public static function validateToken(string $token, ?array &$payload = null): bool
     {
         $parts = explode('.', $token);
@@ -67,6 +81,10 @@ final class JWT
         return true;
     }
 
+    /**
+     * @param string $data
+     * @return string
+     */
     private static function base64UrlDecode(string $data): string
     {
         return str_replace(['-', '_', ''], ['+', '/', '='], base64_decode($data));

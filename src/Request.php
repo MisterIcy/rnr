@@ -19,7 +19,7 @@ final class Request
     /**
      * @var array<string, string>|null
      */
-    private array $headers;
+    private ?array $headers;
 
     public function __construct()
     {
@@ -62,6 +62,9 @@ final class Request
         return array_key_exists($name, $this->headers);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getUriParts(): array
     {
         $parts = explode("/", $this->uri);
@@ -72,7 +75,7 @@ final class Request
 
     /**
      * Returns a Request's Data
-     * @return array|null
+     * @return array<mixed>|null
      */
     public function getData(): ?array
     {
